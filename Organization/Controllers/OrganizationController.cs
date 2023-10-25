@@ -33,9 +33,9 @@ namespace Organization.Controllers
 
         // POST api/<OrganizationController>
         [HttpPost]
-        public IActionResult Post([FromBody] Models.Organization organization)
+        public async Task<IActionResult> Post([FromBody] Models.Organization organization)
         {
-            string? organizationId = _repository.Create(organization);
+            string? organizationId = await _repository.Create(organization);
 
             if (organizationId is null)
             {

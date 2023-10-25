@@ -1,11 +1,29 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+using MongoDB.Driver;
+using Organization.Models;
 
 namespace Organization.Services;
 
-public class OrganizationRepository : IOrganizationRepository
+public class OrganizationRepository(ILogger<OrganizationRepository> logger, MongoClient client) : IOrganizationRepository
 {
-    public string? Create(Models.Organization organization)
+    private const string Database = "cp_organization";
+    private const string Collection = "organization";
+    
+    private IMongoCollection<IdentifiableOrganization> _collection = client.GetDatabase(Database).GetCollection<IdentifiableOrganization>(Collection);
+
+    public async Task<string?> Create(Models.Organization organization)
     {
-        return "Ok";
+        string id = Guid.NewGuid().ToString();
+        IdentifiableOrganization idOrg = new(id, organization);
+
+        try
+        {
+            await _collection.InsertOneAsync(idOrg);
+            return id;
+        }
+        catch (Exception e)
+        {
+            logger.LogInformation($"failed to insert organization: {e}");
+            return null;
+        }
     }
 }
