@@ -16,20 +16,6 @@ namespace Organization.Controllers
             _logger = logger;
             _repository = repository;
         }
-        
-        // GET: api/<OrganizationController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<OrganizationController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
 
         // POST api/<OrganizationController>
         [HttpPost]
@@ -43,18 +29,6 @@ namespace Organization.Controllers
             }
 
             return Ok(organizationId);
-        }
-
-        // PUT api/<OrganizationController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<OrganizationController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
