@@ -6,23 +6,15 @@ namespace Cuplan.Organization.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OrganizationController : ControllerBase
+public class OrganizationController(ILogger<OrganizationController> logger, IOrganizationRepository repository)
+    : ControllerBase
 {
-    private ILogger<OrganizationController> _logger;
-    private IOrganizationRepository _repository;
-
-    public OrganizationController(ILogger<OrganizationController> logger, IOrganizationRepository repository)
-    {
-        _logger = logger;
-        _repository = repository;
-    }
-
     // POST api/<OrganizationController>
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Post([FromBody] Models.Organization organization)
     {
-        string? organizationId = await _repository.Create(organization);
+        string? organizationId = await repository.Create(organization);
 
         if (organizationId is null)
         {
