@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Core.Secrets;
+using Cuplan.Organization.Models;
 using Cuplan.Organization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -32,7 +33,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddSingleton<MongoClient>(sp => new MongoClient(initialization.GetMongoDbUri()));
 builder.Services.AddSingleton<ISecretsManager, BitwardenSecretsManager>();
+
 builder.Services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
+builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
+
+builder.Services.AddSingleton<MemberManager>();
 
 var app = builder.Build();
 
