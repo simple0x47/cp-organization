@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Core.Secrets;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
@@ -10,6 +11,7 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
     
     public TestBase(WebApplicationFactory<Program> factory)
     {
+        ResolveDependencies();
         InitializeEnvironmentVariables();
         
         _secretsManager = new BitwardenSecretsManager(null);
@@ -17,6 +19,17 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
         ApiAccessToken = _secretsManager.get(Environment.GetEnvironmentVariable("API_ACCESS_TOKEN_SECRET"));
     }
 
+    private void ResolveDependencies()
+    {
+        string dependenciesPath = $"{SolutionRootPath}/compose";
+        
+        Process dependenciesScript = new ();
+        dependenciesScript.StartInfo.FileName = "bash";
+        dependenciesScript.StartInfo.Arguments = $"{dependenciesPath}/dev.sh {dependenciesPath}";
+        dependenciesScript.Start();
+        dependenciesScript.WaitForExit();
+    }
+    
     private void InitializeEnvironmentVariables()
     {
         string? environmentMode = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -26,7 +39,7 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
             environmentMode = "Development";
         }
 
-        string environmentFileDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+        string environmentFileDirectory = ProjectRootPath;
         string environmentFile = $"{environmentMode}.env";
 
         foreach (string line in File.ReadLines($"{environmentFileDirectory}/{environmentFile}"))
@@ -44,4 +57,10 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
     
     protected WebApplicationFactory<Program> Factory { get; set; }
     protected string? ApiAccessToken { get; }
+
+    protected string ProjectRootPath { get; } =
+        Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+
+    protected string SolutionRootPath { get; } =
+        Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.Parent.FullName;
 }
