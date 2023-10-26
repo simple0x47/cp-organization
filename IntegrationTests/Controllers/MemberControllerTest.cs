@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
+[Collection("Database")]
 public class MemberControllerTest(WebApplicationFactory<Program> factory) : TestBase(factory)
 {
     [Fact]

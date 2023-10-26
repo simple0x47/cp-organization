@@ -4,10 +4,10 @@ using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
+[Collection("Database")]
 public class OrganizationControllerTest(WebApplicationFactory<Program> factory) : TestBase(factory)
 {
     [Fact]
