@@ -2,17 +2,11 @@ using Core.Secrets;
 
 namespace Organization;
 
-public class Initialization
+public class Initialization(WebApplicationBuilder builder)
 {
-    private readonly WebApplicationBuilder _builder;
-    private readonly ISecretsManager _secretsManager;
+    private readonly WebApplicationBuilder _builder = builder;
+    private readonly ISecretsManager _secretsManager = new BitwardenSecretsManager(null);
 
-    public Initialization(WebApplicationBuilder builder)
-    {
-        _builder = builder;
-        _secretsManager = new BitwardenSecretsManager(null);
-    }
-    
     public string GetMongoDbUri()
     {
         string? secretId = _builder.Configuration.GetValue<string>("MongoDBConnectionUriSecret");
