@@ -2,5 +2,6 @@ namespace Organization;
 
 public enum ErrorKind
 {
-    OrganizationNotFound
+    OrganizationNotFound,
+    StorageError,
 }

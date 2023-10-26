@@ -1,3 +1,6 @@
+using Core;
+using Organization;
+
 namespace Cuplan.Organization.Services;
 
 public interface IOrganizationRepository
@@ -14,5 +17,5 @@ public interface IOrganizationRepository
     /// </summary>
     /// <param name="id"></param>
     /// <returns>The organization whose id has been specified, null if it cannot be found or a failure occurs.</returns>
-    public Task<Models.Organization?> FindById(string id);
+    public Task<Result<Models.Organization, Error<ErrorKind>>> FindById(string id);
 }
