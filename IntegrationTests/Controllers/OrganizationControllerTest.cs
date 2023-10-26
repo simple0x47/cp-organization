@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Organization.Models;
 using Xunit;
 using Xunit.Sdk;
 
@@ -24,7 +24,7 @@ public class OrganizationControllerTest : TestBase, IClassFixture<WebApplication
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiAccessToken);
 
-        global::Organization.Models.Organization exampleOrganization =
+        global::Cuplan.Organization.Models.Organization exampleOrganization =
             new ("a", new Address("a", "b", "c", "d", "e", "f", "g"),
                 new[] { "a" });
         var response = await client.PostAsync("api/Organization", JsonContent.Create(exampleOrganization));

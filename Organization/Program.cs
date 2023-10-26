@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using Core.Secrets;
+using Cuplan.Organization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Organization;
-using Organization.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
