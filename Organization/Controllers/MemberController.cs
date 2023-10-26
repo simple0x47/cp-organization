@@ -1,7 +1,8 @@
+using Core;
 using Cuplan.Organization.Models;
-using Cuplan.Organization.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Organization;
 
 namespace Cuplan.Organization.Controllers;
 
@@ -14,11 +15,18 @@ public class MemberController(MemberManager memberManager) : ControllerBase
     [Authorize]
     public async Task<IActionResult> Post([FromBody] Member member)
     {
-        string? memberId = await memberManager.Create(member);
-
-        if (memberId is null)
+        Result<string, Error<ErrorKind>> memberId = await memberManager.Create(member);
+        
+        if (!memberId.IsOk)
         {
-            return BadRequest("org id not found");
+            var error = memberId.UnwrapErr();
+            
+            if (error.ErrorKind == ErrorKind.OrganizationNotFound)
+            {
+                return BadRequest("org id not found");   
+            }
+            
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
         
         return Ok("");

@@ -26,4 +26,20 @@ public class OrganizationRepository(ILogger<OrganizationRepository> logger, Mong
             return null;
         }
     }
+
+    public async Task<Models.Organization?> FindById(string id)
+    {
+        try
+        {
+            var cursor = await _collection.FindAsync(p => p.Id.Equals(id));
+            IdentifiableOrganization organization = cursor.First();
+
+            return (Models.Organization)organization;
+        }
+        catch (Exception e)
+        {
+            logger.LogInformation($"failed to find organization by id: {e}");
+            return null;
+        }
+    }
 }

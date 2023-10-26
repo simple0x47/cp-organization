@@ -8,10 +8,6 @@
         
         <RootNamespace>Cuplan.Organization.IntegrationTests</RootNamespace>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Folder Include="Controllers\" />
-    </ItemGroup>
     
     <ItemGroup>
         <ProjectReference Include="..\Organization\Organization.csproj" />

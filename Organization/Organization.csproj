@@ -16,14 +16,14 @@
         <Folder Include="Controllers\" />
         <Folder Include="ServiceModels\" />
     </ItemGroup>
-
+    
     <ItemGroup>
-        <PackageReference Include="Cuplan.Core" Version="0.1.13" />
+        <PackageReference Include="Cuplan.Core" Version="0.1.15" />
     </ItemGroup>
     
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.2.23480.2"/>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0-rc.2.23509.1" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0-rc.2.23509.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0-rc.2.23480.2"/>
         
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3"/>
