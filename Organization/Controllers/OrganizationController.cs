@@ -1,27 +1,39 @@
-using Cuplan.Organization.Services;
+using Core;
+using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Organization;
 
 namespace Cuplan.Organization.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OrganizationController(ILogger<OrganizationController> logger, IOrganizationRepository repository)
+public class OrganizationController
     : ControllerBase
 {
+    private readonly ILogger<OrganizationController> _logger;
+    private readonly OrganizationManager _orgManager;
+
+    public OrganizationController(ILogger<OrganizationController> logger, OrganizationManager orgManager)
+    {
+        _logger = logger;
+        _orgManager = orgManager;
+    }
+
     // POST api/<OrganizationController>
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Post([FromBody] Models.Organization organization)
+    public async Task<IActionResult> Post([FromBody] Models.Organization org)
     {
-        string? organizationId = await repository.Create(organization);
+        Result<string, Error<ErrorKind>> result = await _orgManager.Create(org);
 
-        if (organizationId is null)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, "failed to create organization");
-        }
-
-        return Ok(organizationId);
+        return result.Match<IActionResult>(
+            orgId => { return Ok(orgId); },
+            error =>
+            {
+                _logger.LogWarning($"failed to create organization: {error.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        );
     }
 }
-

@@ -2,34 +2,33 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        
+
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        
+
         <RootNamespace>Cuplan.Organization</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Config\" />
-        <Folder Include="Controllers\" />
-        <Folder Include="ServiceModels\" />
+        <Folder Include="Controllers\"/>
+        <Folder Include="ServiceModels\"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="Cuplan.Core" Version="0.1.15" />
+        <PackageReference Include="Cuplan.Core" Version="0.1.15"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.2.23480.2"/>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0-rc.2.23509.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0-rc.2.23480.2"/>
-        
+
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3"/>
-        
+
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
-        
+
         <PackageReference Include="MongoDB.Driver" Version="2.22.0"/>
     </ItemGroup>
 

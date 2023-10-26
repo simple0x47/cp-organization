@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Organization;
+using Organization.Config;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -23,7 +24,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-Initialization initialization = new Initialization(builder);
+Initialization initialization = new(builder);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -31,15 +32,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+// Other dependencies
 builder.Services.AddSingleton<MongoClient>(sp => new MongoClient(initialization.GetMongoDbUri()));
 builder.Services.AddSingleton<ISecretsManager, BitwardenSecretsManager>();
+builder.Services.AddSingleton<ConfigurationReader>();
 
+// Services
 builder.Services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 
+// Models
 builder.Services.AddSingleton<MemberManager>();
+builder.Services.AddSingleton<OrganizationManager>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -59,5 +65,4 @@ app.Run();
 
 public partial class Program
 {
-    
 }

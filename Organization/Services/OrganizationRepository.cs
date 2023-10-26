@@ -2,32 +2,50 @@ using Core;
 using Cuplan.Organization.ServiceModels;
 using MongoDB.Driver;
 using Organization;
+using Organization.Config;
 
 namespace Cuplan.Organization.Services;
 
-public class OrganizationRepository
-    (ILogger<OrganizationRepository> logger, MongoClient client) : IOrganizationRepository
+public class OrganizationRepository : IOrganizationRepository
 {
     private const string Database = "cp_organization";
     private const string Collection = "organization";
+    private const double DefaultTimeoutAfterSeconds = 15;
 
-    private readonly IMongoCollection<IdentifiableOrganization> _collection =
-        client.GetDatabase(Database).GetCollection<IdentifiableOrganization>(Collection);
+    private readonly IMongoCollection<IdentifiableOrganization> _collection;
 
-    public async Task<string?> Create(Models.Organization organization)
+    private readonly double _createTimeoutAfterSeconds;
+    private readonly double _findByIdTimeoutAfterSeconds;
+
+    private readonly ILogger<OrganizationRepository> _logger;
+
+    public OrganizationRepository(ILogger<OrganizationRepository> logger, ConfigurationReader config,
+        MongoClient client)
+    {
+        _logger = logger;
+        _collection = client.GetDatabase(Database).GetCollection<IdentifiableOrganization>(Collection);
+
+        _createTimeoutAfterSeconds =
+            config.GetDoubleOrDefault("OrganizationRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
+        _findByIdTimeoutAfterSeconds =
+            config.GetDoubleOrDefault("OrganizationRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
+    }
+
+    public async Task<Result<string, Error<ErrorKind>>> Create(Models.Organization organization)
     {
         string id = Guid.NewGuid().ToString();
         IdentifiableOrganization idOrg = new(id, organization);
 
         try
         {
-            await _collection.InsertOneAsync(idOrg);
-            return id;
+            await _collection.InsertOneAsync(idOrg).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
+            return Result<string, Error<ErrorKind>>.Ok(id);
         }
         catch (Exception e)
         {
-            logger.LogInformation($"failed to insert organization: {e}");
-            return null;
+            _logger.LogInformation($"failed to insert organization: {e}");
+            return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                $"failed to insert organization: {e}"));
         }
     }
 
@@ -36,7 +54,8 @@ public class OrganizationRepository
         try
         {
             IAsyncCursor<IdentifiableOrganization>? cursor =
-                await _collection.FindAsync(p => p.Id.Equals(id)).WaitAsync(TimeSpan.FromSeconds(15));
+                await _collection.FindAsync(p => p.Id.Equals(id))
+                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
 
             if (cursor is null)
                 return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
@@ -52,13 +71,13 @@ public class OrganizationRepository
         }
         catch (TimeoutException)
         {
-            logger.LogInformation("timed out finding organization by id");
+            _logger.LogInformation("timed out finding organization by id");
             return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                 "timed out finding organization by id"));
         }
         catch (Exception e)
         {
-            logger.LogInformation($"failed to find organization by id: {e}");
+            _logger.LogInformation($"failed to find organization by id: {e}");
             return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                 $"failed to find organization by id: {e}"));
         }
