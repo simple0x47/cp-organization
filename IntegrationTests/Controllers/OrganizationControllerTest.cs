@@ -8,7 +8,7 @@ using Xunit.Sdk;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
-public class OrganizationControllerTest(WebApplicationFactory<Program> factory) : TestBase, IClassFixture<WebApplicationFactory<Program>>
+public class OrganizationControllerTest(WebApplicationFactory<Program> factory) : TestBase(factory)
 {
     [Fact]
     public async Task CreateOrganization_ReturnsAnOrganizationId()

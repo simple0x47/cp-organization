@@ -1,16 +1,19 @@
 using Core.Secrets;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
 
 namespace Cuplan.Organization.IntegrationTests;
 
-public class TestBase
+public class TestBase : IClassFixture<WebApplicationFactory<Program>>
 {
     private ISecretsManager _secretsManager;
     
-    public TestBase()
+    public TestBase(WebApplicationFactory<Program> factory)
     {
         InitializeEnvironmentVariables();
         
         _secretsManager = new BitwardenSecretsManager(null);
+        Factory = factory;
         ApiAccessToken = _secretsManager.get(Environment.GetEnvironmentVariable("API_ACCESS_TOKEN_SECRET"));
     }
 
@@ -39,5 +42,6 @@ public class TestBase
         }   
     }
     
+    protected WebApplicationFactory<Program> Factory { get; set; }
     protected string? ApiAccessToken { get; }
 }
