@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Organization.Services;
 
@@ -18,6 +19,7 @@ namespace Organization.Controllers
 
         // POST api/<OrganizationController>
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post([FromBody] Models.Organization organization)
         {
             string? organizationId = await _repository.Create(organization);

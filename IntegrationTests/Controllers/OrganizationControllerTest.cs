@@ -1,12 +1,14 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Organization.Models;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
-public class OrganizationControllerTest : IClassFixture<WebApplicationFactory<Program>>
+public class OrganizationControllerTest : TestBase, IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory;
 
@@ -20,6 +22,7 @@ public class OrganizationControllerTest : IClassFixture<WebApplicationFactory<Pr
     {
         const int organizationIdLength = 36;
         var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiAccessToken);
 
         global::Organization.Models.Organization exampleOrganization =
             new ("a", new Address("a", "b", "c", "d", "e", "f", "g"),
