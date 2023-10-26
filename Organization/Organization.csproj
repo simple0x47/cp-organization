@@ -23,6 +23,9 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.2.23480.2"/>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0-rc.2.23509.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0-rc.2.23480.2"/>
+        
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3"/>
         
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
         
