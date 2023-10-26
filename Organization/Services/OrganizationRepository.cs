@@ -1,4 +1,4 @@
-using Cuplan.Organization.Models;
+using Cuplan.Organization.ServiceModels;
 using MongoDB.Driver;
 
 namespace Cuplan.Organization.Services;

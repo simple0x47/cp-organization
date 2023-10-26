@@ -8,20 +8,13 @@ using Xunit.Sdk;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
-public class OrganizationControllerTest : TestBase, IClassFixture<WebApplicationFactory<Program>>
+public class OrganizationControllerTest(WebApplicationFactory<Program> factory) : TestBase, IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<Program> _factory;
-
-    public OrganizationControllerTest(WebApplicationFactory<Program> factory)
-    {
-        _factory = factory;
-    }
-
     [Fact]
     public async Task CreateOrganization_ReturnsAnOrganizationId()
     {
         const int organizationIdLength = 36;
-        var client = _factory.CreateClient();
+        var client = factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiAccessToken);
 
         global::Cuplan.Organization.Models.Organization exampleOrganization =

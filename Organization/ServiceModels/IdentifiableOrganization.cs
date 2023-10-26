@@ -1,6 +1,8 @@
-namespace Cuplan.Organization.Models;
+using Cuplan.Organization.Models;
 
-public class IdentifiableOrganization(string id, Organization organization)
+namespace Cuplan.Organization.ServiceModels;
+
+public class IdentifiableOrganization(string id, Models.Organization organization)
 {
     public string Id { get; set; } = id;
     public string Name { get; set; } = organization.Name;
