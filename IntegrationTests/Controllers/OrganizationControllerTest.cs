@@ -1,9 +1,10 @@
+using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Organization.Models;
 using Xunit;
 
-namespace Cuplan.Organization.IntegrationTests;
+namespace Cuplan.Organization.IntegrationTests.Controllers;
 
 public class OrganizationControllerTest : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -21,7 +22,7 @@ public class OrganizationControllerTest : IClassFixture<WebApplicationFactory<Pr
         var client = _factory.CreateClient();
 
         global::Organization.Models.Organization exampleOrganization =
-            new global::Organization.Models.Organization("a", new Address("a", "b", "c", "d", "e", "f", "g"),
+            new ("a", new Address("a", "b", "c", "d", "e", "f", "g"),
                 new[] { "a" });
         var response = await client.PostAsync("api/Organization", JsonContent.Create(exampleOrganization));
 
@@ -29,6 +30,7 @@ public class OrganizationControllerTest : IClassFixture<WebApplicationFactory<Pr
         string organizationId = await response.Content.ReadAsStringAsync();
         
         
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(organizationIdLength, organizationId.Length);
     }
 }
