@@ -1,4 +1,4 @@
-namespace Organization.Services;
+namespace Cuplan.Organization.Services;
 
 public interface IOrganizationRepository
 { 

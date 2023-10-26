@@ -1,4 +1,4 @@
-namespace Organization.Models;
+namespace Cuplan.Organization.Models;
 
 public class IdentifiableOrganization(string id, Organization organization)
 {

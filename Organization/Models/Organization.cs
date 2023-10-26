@@ -1,4 +1,4 @@
-namespace Organization.Models;
+namespace Cuplan.Organization.Models;
 
 public class Organization(string name, Address address, IEnumerable<string> permissions)
 {

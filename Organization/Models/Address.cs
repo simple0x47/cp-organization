@@ -1,4 +1,4 @@
-namespace Organization.Models;
+namespace Cuplan.Organization.Models;
 
 public class Address(string country, string province, string city, string street, string number, string? additional, string postalCode)
 {

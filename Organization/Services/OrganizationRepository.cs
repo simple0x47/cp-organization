@@ -1,7 +1,7 @@
+using Cuplan.Organization.Models;
 using MongoDB.Driver;
-using Organization.Models;
 
-namespace Organization.Services;
+namespace Cuplan.Organization.Services;
 
 public class OrganizationRepository(ILogger<OrganizationRepository> logger, MongoClient client) : IOrganizationRepository
 {
