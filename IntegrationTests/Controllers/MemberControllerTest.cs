@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,12 +13,8 @@ public class MemberControllerTest : TestBase
     private const string MemberApi = "api/Member";
     private const string DefaultTestUserId = "example@domain.com";
 
-    private readonly HttpClient _client;
-
     public MemberControllerTest(WebApplicationFactory<Program> factory) : base(factory)
     {
-        _client = factory.CreateClient();
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiAccessToken);
     }
 
     [Fact]
@@ -27,7 +22,7 @@ public class MemberControllerTest : TestBase
     {
         PartialMember examplePartialMember =
             new("653bf78afc1ba1ad481195c4", "example@domain.com", Array.Empty<string>(), Array.Empty<string>());
-        HttpResponseMessage response = await _client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
+        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 
         string failure = await response.Content.ReadAsStringAsync();
@@ -63,13 +58,13 @@ public class MemberControllerTest : TestBase
         Member idMember = new(memberId, partialMember);
 
 
-        HttpResponseMessage updateResponse = await _client.PatchAsync(MemberApi, JsonContent.Create(idMember));
+        HttpResponseMessage updateResponse = await Client.PatchAsync(MemberApi, JsonContent.Create(idMember));
 
 
         Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
 
 
-        HttpResponseMessage getResponse = await _client.GetAsync($"{MemberApi}/{memberId}");
+        HttpResponseMessage getResponse = await Client.GetAsync($"{MemberApi}/{memberId}");
 
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
@@ -85,7 +80,7 @@ public class MemberControllerTest : TestBase
         PartialOrganization exampleOrg =
             new("a", new Address("a", "b", "c", "d", "e", "f", "g"),
                 new[] { "a" });
-        HttpResponseMessage orgResponse = await _client.PostAsync(OrganizationApi, JsonContent.Create(exampleOrg));
+        HttpResponseMessage orgResponse = await Client.PostAsync(OrganizationApi, JsonContent.Create(exampleOrg));
 
 
         Assert.Equal(HttpStatusCode.OK, orgResponse.StatusCode);
@@ -98,7 +93,7 @@ public class MemberControllerTest : TestBase
     {
         PartialMember examplePartialMember =
             new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<string>());
-        HttpResponseMessage response = await _client.PostAsync("api/Member", JsonContent.Create(examplePartialMember));
+        HttpResponseMessage response = await Client.PostAsync("api/Member", JsonContent.Create(examplePartialMember));
 
 
         string memberId = await response.Content.ReadAsStringAsync();
