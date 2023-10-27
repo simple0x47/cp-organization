@@ -46,6 +46,7 @@ builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<MemberManager>();
 builder.Services.AddScoped<OrganizationManager>();
 builder.Services.AddScoped<RoleManager>();
+builder.Services.AddScoped<ApiGatewayLogic>();
 
 WebApplication app = builder.Build();
 
