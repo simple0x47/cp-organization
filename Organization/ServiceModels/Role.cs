@@ -21,8 +21,8 @@ public class Role
     public bool? DefaultAdmin { get; set; }
     public bool? DefaultMember { get; set; }
 
-    public static implicit operator Models.Role(Role r)
+    public static implicit operator Models.Role(Role role)
     {
-        return new Models.Role(r.Id.ToString(), r.Name, r.Permissions);
+        return new Models.Role(role.Id.ToString(), role.Name, role.Permissions);
     }
 }
