@@ -9,7 +9,7 @@ namespace Cuplan.Organization.Services;
 public class OrganizationRepository : IOrganizationRepository
 {
     private const double DefaultTimeoutAfterSeconds = 15;
-    private readonly IMongoCollection<IdentifiableOrganization> _collection;
+    private readonly IMongoCollection<ServiceModels.Organization> _collection;
 
     private readonly double _createTimeoutAfterSeconds;
     private readonly double _findByIdTimeoutAfterSeconds;
@@ -21,7 +21,7 @@ public class OrganizationRepository : IOrganizationRepository
     {
         _logger = logger;
         _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
-            .GetCollection<IdentifiableOrganization>(
+            .GetCollection<ServiceModels.Organization>(
                 config.GetStringOrThrowException("OrganizationRepository:Collection"));
 
         _createTimeoutAfterSeconds =
@@ -30,15 +30,14 @@ public class OrganizationRepository : IOrganizationRepository
             config.GetDoubleOrDefault("OrganizationRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
     }
 
-    public async Task<Result<string, Error<ErrorKind>>> Create(Models.Organization organization)
+    public async Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization partialOrg)
     {
-        string id = Guid.NewGuid().ToString();
-        IdentifiableOrganization idOrg = new(id, organization);
-
         try
         {
-            await _collection.InsertOneAsync(idOrg).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
-            return Result<string, Error<ErrorKind>>.Ok(id);
+            ServiceModels.Organization org = new(partialOrg);
+            await _collection.InsertOneAsync(org).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
+
+            return Result<string, Error<ErrorKind>>.Ok(org.Id.ToString());
         }
         catch (Exception e)
         {
@@ -53,7 +52,7 @@ public class OrganizationRepository : IOrganizationRepository
     {
         try
         {
-            IAsyncCursor<IdentifiableOrganization>? cursor =
+            IAsyncCursor<ServiceModels.Organization>? cursor =
                 await _collection.FindAsync(p => p.Id.Equals(id))
                     .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
 
@@ -67,13 +66,13 @@ public class OrganizationRepository : IOrganizationRepository
                 return Result<Models.Organization, Error<ErrorKind>>.Err(
                     new Error<ErrorKind>(ErrorKind.NotFound, $"could not find org by id '{id}'"));
 
-            IdentifiableOrganization? organization = cursor.Current.FirstOrDefault();
+            ServiceModels.Organization? organization = cursor.Current.FirstOrDefault();
 
             if (organization is null)
                 return Result<Models.Organization, Error<ErrorKind>>.Err(
                     new Error<ErrorKind>(ErrorKind.NotFound, $"could not find org by id '{id}'"));
 
-            return Result<Models.Organization, Error<ErrorKind>>.Ok((Models.Organization)organization);
+            return Result<Models.Organization, Error<ErrorKind>>.Ok(organization);
         }
         catch (TimeoutException)
         {

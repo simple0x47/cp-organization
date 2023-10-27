@@ -11,7 +11,7 @@ public class OrganizationManager(IOrganizationRepository repository)
     /// </summary>
     /// <param name="org"></param>
     /// <returns>Organization's id or an error.</returns>
-    public async Task<Result<string, Error<ErrorKind>>> Create(Organization org)
+    public async Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization org)
     {
         Result<string, Error<ErrorKind>> result = await repository.Create(org);
 
