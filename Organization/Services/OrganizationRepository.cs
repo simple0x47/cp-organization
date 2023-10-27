@@ -1,5 +1,5 @@
 using Core;
-using Cuplan.Organization.ServiceModels;
+using Cuplan.Organization.Models;
 using MongoDB.Driver;
 using Organization;
 using Organization.Config;
