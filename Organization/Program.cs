@@ -40,10 +40,12 @@ builder.Services.AddSingleton<ConfigurationReader>();
 // Services
 builder.Services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
+builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
 
 // Models
-builder.Services.AddSingleton<MemberManager>();
-builder.Services.AddSingleton<OrganizationManager>();
+builder.Services.AddScoped<MemberManager>();
+builder.Services.AddScoped<OrganizationManager>();
+builder.Services.AddScoped<RoleManager>();
 
 WebApplication app = builder.Build();
 
