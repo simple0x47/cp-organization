@@ -20,7 +20,6 @@ public class OrganizationController
         _orgManager = orgManager;
     }
 
-    // POST api/<OrganizationController>
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Post([FromBody] Models.Organization org)
