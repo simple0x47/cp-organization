@@ -1,6 +1,5 @@
 using Core;
 using Cuplan.Organization.Models;
-using Cuplan.Organization.ServiceModels;
 using MongoDB.Driver;
 using Organization;
 using Organization.Config;
@@ -14,7 +13,10 @@ public class MemberRepository : IMemberRepository
     private readonly IMongoCollection<IdentifiableMember> _collection;
 
     private readonly double _createTimeoutAfterSeconds;
+    private readonly double _findByIdTimeoutAfterSeconds;
     private readonly ILogger<MemberRepository> _logger;
+    private readonly double _setPermissionsTimeoutAfterSeconds;
+    private readonly double _setRolesTimeoutAfterSeconds;
 
     public MemberRepository(ILogger<MemberRepository> logger, ConfigurationReader config, MongoClient client)
     {
@@ -24,6 +26,74 @@ public class MemberRepository : IMemberRepository
 
         _createTimeoutAfterSeconds =
             config.GetDoubleOrDefault("MemberRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
+        _findByIdTimeoutAfterSeconds =
+            config.GetDoubleOrDefault("MemberRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
+        _setPermissionsTimeoutAfterSeconds =
+            config.GetDoubleOrDefault("MemberRepository:SetPermissionsTimeout", DefaultTimeoutAfterSeconds);
+        _setRolesTimeoutAfterSeconds =
+            config.GetDoubleOrDefault("MemberRepository:SetRolesTimeout", DefaultTimeoutAfterSeconds);
+    }
+
+    public async Task<Result<Empty, Error<ErrorKind>>> SetPermissions(string memberId, IEnumerable<string> permissions)
+    {
+        try
+        {
+            FilterDefinition<IdentifiableMember>? filter = Builders<IdentifiableMember>.Filter.Eq(m => m.Id, memberId);
+            UpdateDefinition<IdentifiableMember>? update =
+                Builders<IdentifiableMember>.Update.Set(m => m.Permissions, permissions);
+
+            UpdateResult result = await _collection.UpdateOneAsync(filter, update)
+                .WaitAsync(TimeSpan.FromSeconds(_setPermissionsTimeoutAfterSeconds));
+
+            if (result.ModifiedCount != 1)
+                return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
+                    $"member with id '{memberId}' not found"));
+
+            return Result<Empty, Error<ErrorKind>>.Ok(new Empty());
+        }
+        catch (TimeoutException)
+        {
+            string message = "timed out setting permissions";
+            _logger.LogInformation(message);
+            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+        }
+        catch (Exception e)
+        {
+            string message = $"failed to set permissions: {e}";
+            _logger.LogInformation(message);
+            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError, message));
+        }
+    }
+
+    public async Task<Result<Empty, Error<ErrorKind>>> SetRoles(string memberId, IEnumerable<string> roles)
+    {
+        try
+        {
+            FilterDefinition<IdentifiableMember>? filter = Builders<IdentifiableMember>.Filter.Eq(m => m.Id, memberId);
+            UpdateDefinition<IdentifiableMember>? update =
+                Builders<IdentifiableMember>.Update.Set(m => m.Roles, roles);
+
+            UpdateResult result = await _collection.UpdateOneAsync(filter, update)
+                .WaitAsync(TimeSpan.FromSeconds(_setRolesTimeoutAfterSeconds));
+
+            if (result.ModifiedCount != 1)
+                return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
+                    $"member with id '{memberId}' not found"));
+
+            return Result<Empty, Error<ErrorKind>>.Ok(new Empty());
+        }
+        catch (TimeoutException)
+        {
+            string message = "timed out setting roles";
+            _logger.LogInformation(message);
+            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+        }
+        catch (Exception e)
+        {
+            string message = $"failed to set roles: {e}";
+            _logger.LogInformation(message);
+            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError, message));
+        }
     }
 
     public async Task<Result<string, Error<ErrorKind>>> Create(Member member)
@@ -50,8 +120,45 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<Result<Empty, Error<ErrorKind>>> AddRoleToMember(string roleId, string memberId)
+    public async Task<Result<IdentifiableMember, Error<ErrorKind>>> FindById(string memberId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            IAsyncCursor<IdentifiableMember>? cursor =
+                await _collection.FindAsync(p => p.Id.Equals(memberId))
+                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+
+            if (cursor is null)
+                return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                    "find async cursor is null"));
+
+            bool hasNext = await cursor.MoveNextAsync().WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+
+            if (!hasNext)
+                return Result<IdentifiableMember, Error<ErrorKind>>.Err(
+                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
+
+            IdentifiableMember? idMember = cursor.Current.FirstOrDefault();
+
+            if (idMember is null)
+                return Result<IdentifiableMember, Error<ErrorKind>>.Err(
+                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
+
+            return Result<IdentifiableMember, Error<ErrorKind>>.Ok(idMember);
+        }
+        catch (TimeoutException)
+        {
+            string message = "timed out finding member by id";
+            _logger.LogInformation(message);
+            return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+                message));
+        }
+        catch (Exception e)
+        {
+            string message = $"failed to find member by id: {e}";
+            _logger.LogInformation(message);
+            return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                message));
+        }
     }
 }

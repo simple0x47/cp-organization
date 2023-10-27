@@ -2,20 +2,27 @@ using Core;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Organization;
 
 namespace Cuplan.Organization.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
-public class MemberController(MemberManager memberManager) : ControllerBase
+public class MemberController : ControllerBase
 {
-    // POST api/<MemberController>
+    private readonly MemberManager _memberManager;
+
+    public MemberController(MemberManager memberManager)
+    {
+        _memberManager = memberManager;
+    }
+
+    [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Post([FromBody] Member member)
+    public async Task<IActionResult> Create([FromBody] Member member)
     {
-        Result<string, Error<ErrorKind>> createMemberResult = await memberManager.Create(member);
+        Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(member);
 
         if (!createMemberResult.IsOk)
         {
@@ -27,5 +34,43 @@ public class MemberController(MemberManager memberManager) : ControllerBase
         }
 
         return Ok(createMemberResult.Unwrap());
+    }
+
+    [Route("api/[controller]/{id}")]
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Read([FromRoute] string id)
+    {
+        Result<IdentifiableMember, Error<ErrorKind>> readResult = await _memberManager.Read(id);
+
+        if (!readResult.IsOk)
+        {
+            Error<ErrorKind> error = readResult.UnwrapErr();
+
+            if (error.ErrorKind == ErrorKind.NotFound) return BadRequest("member id not found");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+        }
+
+        return Ok(JsonConvert.SerializeObject(readResult.Unwrap()));
+    }
+
+    [Route("api/[controller]")]
+    [HttpPatch]
+    [Authorize]
+    public async Task<IActionResult> Update([FromBody] IdentifiableMember idMember)
+    {
+        Result<Empty, Error<ErrorKind>> updateResult = await _memberManager.Update(idMember);
+
+        if (!updateResult.IsOk)
+        {
+            Error<ErrorKind> error = updateResult.UnwrapErr();
+
+            if (error.ErrorKind == ErrorKind.NotFound) return BadRequest("member id not found");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+        }
+
+        return NoContent();
     }
 }
