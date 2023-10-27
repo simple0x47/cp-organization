@@ -96,10 +96,10 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<Result<string, Error<ErrorKind>>> Create(Member member)
+    public async Task<Result<string, Error<ErrorKind>>> Create(PartialMember partialMember)
     {
         string id = Guid.NewGuid().ToString();
-        IdentifiableMember idMember = new(id, member);
+        IdentifiableMember idMember = new(id, partialMember);
 
         try
         {

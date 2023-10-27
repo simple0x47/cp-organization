@@ -25,9 +25,9 @@ public class MemberControllerTest : TestBase
     [Fact]
     public async Task CreateMember_WithNonExistingOrgId_Fails()
     {
-        Member exampleMember =
+        PartialMember examplePartialMember =
             new("1234", "example@domain.com", Array.Empty<string>(), Array.Empty<string>());
-        HttpResponseMessage response = await _client.PostAsync(MemberApi, JsonContent.Create(exampleMember));
+        HttpResponseMessage response = await _client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 
         string failure = await response.Content.ReadAsStringAsync();
@@ -59,8 +59,8 @@ public class MemberControllerTest : TestBase
 
         IEnumerable<string> permissions = new[] { "permission1", "permission2" };
         IEnumerable<string> roles = new[] { "role1", "role2" };
-        Member member = new(orgId, DefaultTestUserId, permissions, roles);
-        IdentifiableMember idMember = new(memberId, member);
+        PartialMember partialMember = new(orgId, DefaultTestUserId, permissions, roles);
+        IdentifiableMember idMember = new(memberId, partialMember);
 
 
         HttpResponseMessage updateResponse = await _client.PatchAsync(MemberApi, JsonContent.Create(idMember));
@@ -82,7 +82,7 @@ public class MemberControllerTest : TestBase
 
     private async Task<string> CreateOrganization()
     {
-        Models.Organization exampleOrg =
+        PartialOrganization exampleOrg =
             new("a", new Address("a", "b", "c", "d", "e", "f", "g"),
                 new[] { "a" });
         HttpResponseMessage orgResponse = await _client.PostAsync(OrganizationApi, JsonContent.Create(exampleOrg));
@@ -96,9 +96,9 @@ public class MemberControllerTest : TestBase
 
     private async Task<string> CreateMember(string orgId)
     {
-        Member exampleMember =
+        PartialMember examplePartialMember =
             new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<string>());
-        HttpResponseMessage response = await _client.PostAsync("api/Member", JsonContent.Create(exampleMember));
+        HttpResponseMessage response = await _client.PostAsync("api/Member", JsonContent.Create(examplePartialMember));
 
 
         string memberId = await response.Content.ReadAsStringAsync();

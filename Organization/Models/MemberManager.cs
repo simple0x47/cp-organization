@@ -10,13 +10,13 @@ public class MemberManager(IMemberRepository memberRepository, IOrganizationRepo
     ///     Creates the member.
     /// </summary>
     /// <returns>Id of the created member.</returns>
-    public async Task<Result<string, Error<ErrorKind>>> Create(Member member)
+    public async Task<Result<string, Error<ErrorKind>>> Create(PartialMember partialMember)
     {
-        Result<Organization, Error<ErrorKind>> findOrgResult = await orgRepository.FindById(member.OrgId);
+        Result<Organization, Error<ErrorKind>> findOrgResult = await orgRepository.FindById(partialMember.OrgId);
 
         if (!findOrgResult.IsOk) return Result<string, Error<ErrorKind>>.Err(findOrgResult.UnwrapErr());
 
-        Result<string, Error<ErrorKind>> createMemberResult = await memberRepository.Create(member);
+        Result<string, Error<ErrorKind>> createMemberResult = await memberRepository.Create(partialMember);
 
         if (!createMemberResult.IsOk) return Result<string, Error<ErrorKind>>.Err(createMemberResult.UnwrapErr());
 

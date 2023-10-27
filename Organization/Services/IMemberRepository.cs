@@ -9,9 +9,9 @@ public interface IMemberRepository
     /// <summary>
     ///     Creates a membership between an user id and an organization id.
     /// </summary>
-    /// <param name="member">The membership to be created.</param>
+    /// <param name="partialMember">The membership to be created.</param>
     /// <returns>Id of the created member, null if the creation failed.</returns>
-    public Task<Result<string, Error<ErrorKind>>> Create(Member member);
+    public Task<Result<string, Error<ErrorKind>>> Create(PartialMember partialMember);
 
     /// <summary>
     ///     Sets the permissions to a membership.

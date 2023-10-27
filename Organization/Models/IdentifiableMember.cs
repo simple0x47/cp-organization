@@ -17,13 +17,13 @@ public class IdentifiableMember
     }
 
 
-    public IdentifiableMember(string id, Member member)
+    public IdentifiableMember(string id, PartialMember partialMember)
     {
         Id = id;
-        OrgId = member.OrgId;
-        UserId = member.UserId;
-        Permissions = member.Permissions;
-        Roles = member.Roles;
+        OrgId = partialMember.OrgId;
+        UserId = partialMember.UserId;
+        Permissions = partialMember.Permissions;
+        Roles = partialMember.Roles;
     }
 
     public string Id { get; set; }

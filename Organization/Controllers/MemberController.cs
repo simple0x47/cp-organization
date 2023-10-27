@@ -20,9 +20,9 @@ public class MemberController : ControllerBase
     [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] Member member)
+    public async Task<IActionResult> Create([FromBody] PartialMember partialMember)
     {
-        Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(member);
+        Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(partialMember);
 
         if (!createMemberResult.IsOk)
         {
