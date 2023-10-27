@@ -26,7 +26,7 @@ public class MemberControllerTest : TestBase
     public async Task CreateMember_WithNonExistingOrgId_Fails()
     {
         PartialMember examplePartialMember =
-            new("1234", "example@domain.com", Array.Empty<string>(), Array.Empty<string>());
+            new("653bf78afc1ba1ad481195c4", "example@domain.com", Array.Empty<string>(), Array.Empty<string>());
         HttpResponseMessage response = await _client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 
@@ -40,7 +40,7 @@ public class MemberControllerTest : TestBase
     [Fact]
     public async Task CreateMember_WithExistingOrgId_Succeeds()
     {
-        const int expectedMemberIdLength = 36;
+        const int expectedMemberIdLength = 24;
 
         string orgId = await CreateOrganization();
 
@@ -60,7 +60,7 @@ public class MemberControllerTest : TestBase
         IEnumerable<string> permissions = new[] { "permission1", "permission2" };
         IEnumerable<string> roles = new[] { "role1", "role2" };
         PartialMember partialMember = new(orgId, DefaultTestUserId, permissions, roles);
-        IdentifiableMember idMember = new(memberId, partialMember);
+        Member idMember = new(memberId, partialMember);
 
 
         HttpResponseMessage updateResponse = await _client.PatchAsync(MemberApi, JsonContent.Create(idMember));
@@ -73,7 +73,7 @@ public class MemberControllerTest : TestBase
 
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        IdentifiableMember? getMember = await getResponse.Content.ReadFromJsonAsync<IdentifiableMember>();
+        Member? getMember = await getResponse.Content.ReadFromJsonAsync<Member>();
 
         Assert.NotNull(getMember);
         Assert.True(getMember.Permissions.SequenceEqual(permissions));

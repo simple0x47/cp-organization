@@ -41,7 +41,7 @@ public class MemberController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Read([FromRoute] string id)
     {
-        Result<IdentifiableMember, Error<ErrorKind>> readResult = await _memberManager.Read(id);
+        Result<Member, Error<ErrorKind>> readResult = await _memberManager.Read(id);
 
         if (!readResult.IsOk)
         {
@@ -58,7 +58,7 @@ public class MemberController : ControllerBase
     [Route("api/[controller]")]
     [HttpPatch]
     [Authorize]
-    public async Task<IActionResult> Update([FromBody] IdentifiableMember idMember)
+    public async Task<IActionResult> Update([FromBody] Member idMember)
     {
         Result<Empty, Error<ErrorKind>> updateResult = await _memberManager.Update(idMember);
 

@@ -1,5 +1,6 @@
 using Core;
 using Cuplan.Organization.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization;
 using Organization.Config;
@@ -48,10 +49,11 @@ public class OrganizationRepository : IOrganizationRepository
         }
     }
 
-    public async Task<Result<Models.Organization, Error<ErrorKind>>> FindById(string id)
+    public async Task<Result<Models.Organization, Error<ErrorKind>>> FindById(string orgId)
     {
         try
         {
+            ObjectId id = ObjectId.Parse(orgId);
             IAsyncCursor<ServiceModels.Organization>? cursor =
                 await _collection.FindAsync(p => p.Id.Equals(id))
                     .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));

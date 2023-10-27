@@ -1,8 +1,10 @@
 using Core;
 using Cuplan.Organization.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization;
 using Organization.Config;
+using Member = Cuplan.Organization.ServiceModels.Member;
 
 namespace Cuplan.Organization.Services;
 
@@ -10,7 +12,7 @@ public class MemberRepository : IMemberRepository
 {
     private const double DefaultTimeoutAfterSeconds = 15;
 
-    private readonly IMongoCollection<IdentifiableMember> _collection;
+    private readonly IMongoCollection<Member> _collection;
 
     private readonly double _createTimeoutAfterSeconds;
     private readonly double _findByIdTimeoutAfterSeconds;
@@ -22,7 +24,7 @@ public class MemberRepository : IMemberRepository
     {
         _logger = logger;
         _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
-            .GetCollection<IdentifiableMember>(config.GetStringOrThrowException("MemberRepository:Collection"));
+            .GetCollection<Member>(config.GetStringOrThrowException("MemberRepository:Collection"));
 
         _createTimeoutAfterSeconds =
             config.GetDoubleOrDefault("MemberRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
@@ -38,9 +40,10 @@ public class MemberRepository : IMemberRepository
     {
         try
         {
-            FilterDefinition<IdentifiableMember>? filter = Builders<IdentifiableMember>.Filter.Eq(m => m.Id, memberId);
-            UpdateDefinition<IdentifiableMember>? update =
-                Builders<IdentifiableMember>.Update.Set(m => m.Permissions, permissions);
+            ObjectId id = ObjectId.Parse(memberId);
+            FilterDefinition<Member>? filter = Builders<Member>.Filter.Eq(m => m.Id, id);
+            UpdateDefinition<Member>? update =
+                Builders<Member>.Update.Set(m => m.Permissions, permissions);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(TimeSpan.FromSeconds(_setPermissionsTimeoutAfterSeconds));
@@ -69,9 +72,10 @@ public class MemberRepository : IMemberRepository
     {
         try
         {
-            FilterDefinition<IdentifiableMember>? filter = Builders<IdentifiableMember>.Filter.Eq(m => m.Id, memberId);
-            UpdateDefinition<IdentifiableMember>? update =
-                Builders<IdentifiableMember>.Update.Set(m => m.Roles, roles);
+            ObjectId id = ObjectId.Parse(memberId);
+            FilterDefinition<Member>? filter = Builders<Member>.Filter.Eq(m => m.Id, id);
+            UpdateDefinition<Member>? update =
+                Builders<Member>.Update.Set(m => m.Roles, roles);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(TimeSpan.FromSeconds(_setRolesTimeoutAfterSeconds));
@@ -98,13 +102,12 @@ public class MemberRepository : IMemberRepository
 
     public async Task<Result<string, Error<ErrorKind>>> Create(PartialMember partialMember)
     {
-        string id = Guid.NewGuid().ToString();
-        IdentifiableMember idMember = new(id, partialMember);
-
         try
         {
-            await _collection.InsertOneAsync(idMember).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
-            return Result<string, Error<ErrorKind>>.Ok(id);
+            Member member = new(partialMember);
+
+            await _collection.InsertOneAsync(member).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
+            return Result<string, Error<ErrorKind>>.Ok(member.Id.ToString());
         }
         catch (TimeoutException)
         {
@@ -120,44 +123,45 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<Result<IdentifiableMember, Error<ErrorKind>>> FindById(string memberId)
+    public async Task<Result<Models.Member, Error<ErrorKind>>> FindById(string memberId)
     {
         try
         {
-            IAsyncCursor<IdentifiableMember>? cursor =
-                await _collection.FindAsync(p => p.Id.Equals(memberId))
+            ObjectId id = ObjectId.Parse(memberId);
+            IAsyncCursor<Member>? cursor =
+                await _collection.FindAsync(p => p.Id.Equals(id))
                     .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
 
             if (cursor is null)
-                return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
 
             if (!hasNext)
-                return Result<IdentifiableMember, Error<ErrorKind>>.Err(
+                return Result<Models.Member, Error<ErrorKind>>.Err(
                     new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            IdentifiableMember? idMember = cursor.Current.FirstOrDefault();
+            Member? idMember = cursor.Current.FirstOrDefault();
 
             if (idMember is null)
-                return Result<IdentifiableMember, Error<ErrorKind>>.Err(
+                return Result<Models.Member, Error<ErrorKind>>.Err(
                     new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            return Result<IdentifiableMember, Error<ErrorKind>>.Ok(idMember);
+            return Result<Models.Member, Error<ErrorKind>>.Ok(idMember);
         }
         catch (TimeoutException)
         {
             string message = "timed out finding member by id";
             _logger.LogInformation(message);
-            return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+            return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find member by id: {e}";
             _logger.LogInformation(message);
-            return Result<IdentifiableMember, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+            return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                 message));
         }
     }

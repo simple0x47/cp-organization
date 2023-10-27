@@ -25,16 +25,16 @@ public class MemberManager(IMemberRepository memberRepository, IOrganizationRepo
         return Result<string, Error<ErrorKind>>.Ok(memberId);
     }
 
-    public async Task<Result<IdentifiableMember, Error<ErrorKind>>> Read(string memberId)
+    public async Task<Result<Member, Error<ErrorKind>>> Read(string memberId)
     {
-        Result<IdentifiableMember, Error<ErrorKind>> findMemberResult = await memberRepository.FindById(memberId);
+        Result<Member, Error<ErrorKind>> findMemberResult = await memberRepository.FindById(memberId);
 
         if (!findMemberResult.IsOk)
-            return Result<IdentifiableMember, Error<ErrorKind>>.Err(findMemberResult.UnwrapErr());
+            return Result<Member, Error<ErrorKind>>.Err(findMemberResult.UnwrapErr());
 
-        IdentifiableMember idMember = findMemberResult.Unwrap();
+        Member idMember = findMemberResult.Unwrap();
 
-        return Result<IdentifiableMember, Error<ErrorKind>>.Ok(idMember);
+        return Result<Member, Error<ErrorKind>>.Ok(idMember);
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public class MemberManager(IMemberRepository memberRepository, IOrganizationRepo
     /// </summary>
     /// <param name="idMember">The updated member.</param>
     /// <returns>An empty result indicating the operation was successful, or an error.</returns>
-    public async Task<Result<Empty, Error<ErrorKind>>> Update(IdentifiableMember idMember)
+    public async Task<Result<Empty, Error<ErrorKind>>> Update(Member idMember)
     {
         Result<Empty, Error<ErrorKind>> updatePermissions =
             await memberRepository.SetPermissions(idMember.Id, idMember.Permissions);

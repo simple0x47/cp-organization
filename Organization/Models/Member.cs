@@ -1,12 +1,12 @@
 namespace Cuplan.Organization.Models;
 
-public class IdentifiableMember
+public class Member
 {
-    public IdentifiableMember()
+    public Member()
     {
     }
 
-    public IdentifiableMember(string id, string orgId, string userId, IEnumerable<string> permissions,
+    public Member(string id, string orgId, string userId, IEnumerable<string> permissions,
         IEnumerable<string> roles)
     {
         Id = id;
@@ -17,7 +17,7 @@ public class IdentifiableMember
     }
 
 
-    public IdentifiableMember(string id, PartialMember partialMember)
+    public Member(string id, PartialMember partialMember)
     {
         Id = id;
         OrgId = partialMember.OrgId;
