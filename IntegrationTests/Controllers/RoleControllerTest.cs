@@ -21,7 +21,7 @@ public class RoleControllerTest : TestBase
     }
 
     [Fact]
-    public async Task GetAdminRoleId_Succeeds()
+    public async Task GetAdminRole_Succeeds()
     {
         HttpResponseMessage response = await _client.GetAsync($"{RoleApi}/AdminRole");
 
