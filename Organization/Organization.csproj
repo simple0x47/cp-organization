@@ -13,11 +13,10 @@
 
     <ItemGroup>
         <Folder Include="Controllers\"/>
-        <Folder Include="ServiceModels\"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Cuplan.Core" Version="0.1.15"/>
+        <PackageReference Include="Cuplan.Core" Version="0.1.17"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -8,10 +8,7 @@ namespace Cuplan.Organization.Services;
 
 public class OrganizationRepository : IOrganizationRepository
 {
-    private const string Database = "cp_organization";
-    private const string Collection = "organization";
     private const double DefaultTimeoutAfterSeconds = 15;
-
     private readonly IMongoCollection<IdentifiableOrganization> _collection;
 
     private readonly double _createTimeoutAfterSeconds;
@@ -23,7 +20,9 @@ public class OrganizationRepository : IOrganizationRepository
         MongoClient client)
     {
         _logger = logger;
-        _collection = client.GetDatabase(Database).GetCollection<IdentifiableOrganization>(Collection);
+        _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
+            .GetCollection<IdentifiableOrganization>(
+                config.GetStringOrThrowException("OrganizationRepository:Collection"));
 
         _createTimeoutAfterSeconds =
             config.GetDoubleOrDefault("OrganizationRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
@@ -43,9 +42,10 @@ public class OrganizationRepository : IOrganizationRepository
         }
         catch (Exception e)
         {
-            _logger.LogInformation($"failed to insert organization: {e}");
+            string message = $"failed to insert organization: {e}";
+            _logger.LogInformation(message);
             return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
-                $"failed to insert organization: {e}"));
+                message));
         }
     }
 
@@ -61,25 +61,33 @@ public class OrganizationRepository : IOrganizationRepository
                 return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
-            if (!await cursor.AnyAsync())
-                return Result<Models.Organization, Error<ErrorKind>>.Err(
-                    new Error<ErrorKind>(ErrorKind.OrganizationNotFound, $"could not find org by id '{id}'"));
+            bool hasNext = await cursor.MoveNextAsync().WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
 
-            IdentifiableOrganization organization = cursor.First();
+            if (!hasNext)
+                return Result<Models.Organization, Error<ErrorKind>>.Err(
+                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find org by id '{id}'"));
+
+            IdentifiableOrganization? organization = cursor.Current.FirstOrDefault();
+
+            if (organization is null)
+                return Result<Models.Organization, Error<ErrorKind>>.Err(
+                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find org by id '{id}'"));
 
             return Result<Models.Organization, Error<ErrorKind>>.Ok((Models.Organization)organization);
         }
         catch (TimeoutException)
         {
-            _logger.LogInformation("timed out finding organization by id");
-            return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
-                "timed out finding organization by id"));
+            string message = "timed out finding organization by id";
+            _logger.LogInformation(message);
+            return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+                message));
         }
         catch (Exception e)
         {
-            _logger.LogInformation($"failed to find organization by id: {e}");
+            string message = $"failed to find organization by id: {e}";
+            _logger.LogInformation(message);
             return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
-                $"failed to find organization by id: {e}"));
+                message));
         }
     }
 }
