@@ -40,7 +40,7 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
 
         Process dependenciesScript = new();
         dependenciesScript.StartInfo.FileName = "bash";
-        dependenciesScript.StartInfo.Arguments = $"{dependenciesPath}/dev.sh {dependenciesPath}";
+        dependenciesScript.StartInfo.Arguments = $"{dependenciesPath}/deps.sh {dependenciesPath}";
         dependenciesScript.Start();
         dependenciesScript.WaitForExit();
     }
