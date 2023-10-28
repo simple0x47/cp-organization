@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
+[Collection("Database")]
 public class ApiGatewayControllerTest : TestBase
 {
     public ApiGatewayControllerTest(WebApplicationFactory<Program> factory) : base(factory)
