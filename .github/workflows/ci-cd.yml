@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ./app.zip
+          path: ./Organization/app.zip
   cd:
     needs: ci
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
