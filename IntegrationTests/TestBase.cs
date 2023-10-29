@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using Core.Secrets;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cuplan.Organization.IntegrationTests;
 
@@ -10,13 +11,14 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly ISecretsManager _secretsManager;
 
-    public TestBase(WebApplicationFactory<Program> factory)
+    public TestBase(WebApplicationFactory<Program> factory, ITestOutputHelper output)
     {
         ResolveDependencies();
         InitializeEnvironmentVariables();
 
         _secretsManager = new BitwardenSecretsManager(null);
         Factory = factory;
+        Output = output;
         ApiAccessToken = _secretsManager.get(Environment.GetEnvironmentVariable("API_ACCESS_TOKEN_SECRET"));
 
         Client = factory.CreateClient();
@@ -24,6 +26,7 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
     }
 
     protected WebApplicationFactory<Program> Factory { get; set; }
+    protected ITestOutputHelper Output { get; }
     protected string? ApiAccessToken { get; }
 
     protected string ProjectRootPath { get; } =

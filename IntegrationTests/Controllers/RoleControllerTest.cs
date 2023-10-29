@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
@@ -11,7 +12,7 @@ public class RoleControllerTest : TestBase
 {
     private const string RoleApi = "api/Role";
 
-    public RoleControllerTest(WebApplicationFactory<Program> factory) : base(factory)
+    public RoleControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory, output)
     {
     }
 

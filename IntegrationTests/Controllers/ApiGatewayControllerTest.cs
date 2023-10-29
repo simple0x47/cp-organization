@@ -3,13 +3,15 @@ using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
 [Collection("Database")]
 public class ApiGatewayControllerTest : TestBase
 {
-    public ApiGatewayControllerTest(WebApplicationFactory<Program> factory) : base(factory)
+    public ApiGatewayControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
+        output)
     {
     }
 
@@ -30,6 +32,7 @@ public class ApiGatewayControllerTest : TestBase
 
 
         string content = await response.Content.ReadAsStringAsync();
+        Output.WriteLine($"content: {content}");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(expectedOrgIdLength, content.Length);
     }

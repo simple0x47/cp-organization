@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
@@ -13,7 +14,8 @@ public class MemberControllerTest : TestBase
     private const string MemberApi = "api/Member";
     private const string DefaultTestUserId = "example@domain.com";
 
-    public MemberControllerTest(WebApplicationFactory<Program> factory) : base(factory)
+    public MemberControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
+        output)
     {
     }
 

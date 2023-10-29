@@ -3,13 +3,15 @@ using System.Net.Http.Json;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Cuplan.Organization.IntegrationTests.Controllers;
 
 [Collection("Database")]
 public class OrganizationControllerTest : TestBase
 {
-    public OrganizationControllerTest(WebApplicationFactory<Program> factory) : base(factory)
+    public OrganizationControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
+        output)
     {
     }
 
