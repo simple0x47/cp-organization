@@ -11,6 +11,7 @@ env:
   ARTIFACT_NAME: "le_baguette"
   SECRETS_MANAGER_ACCESS_TOKEN: ${{ secrets.SECRETS_MANAGER_ACCESS_TOKEN }}
   ASPNETCORE_ENVIRONMENT: "Actions"
+  PATCH_VERSION: ${{ github.run_number }}
 
 jobs:
   changes:
@@ -65,8 +66,6 @@ jobs:
       - name: Replace placeholder version
         run: |
           sed -i 's/5123.0.0/${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}.${{ env.PATCH_VERSION }}/' ./Organization/Organization.csproj
-        env:
-          PATCH_VERSION: ${{ github.run_number }}
       - name: Run tests
         run: |
           mkdir bin
