@@ -16,6 +16,7 @@ public class ApiGatewayController : ControllerBase
     }
 
     [Route("api/[controller]/register-creating-org")]
+    [HttpPost]
     public async Task<IActionResult> RegisterCreatingOrg([FromBody] RegisterCreatingOrgPayload payload)
     {
         Result<string, Error<ErrorKind>> result = await _apiGatewayLogic.RegisterCreatingOrg(payload);
