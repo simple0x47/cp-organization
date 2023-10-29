@@ -102,7 +102,7 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: ./
-      - name: Unzip app
+      - name: Unzip artifact
         run: |
           unzip app.zip
       - name: Create release
