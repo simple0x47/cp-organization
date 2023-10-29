@@ -13,16 +13,43 @@ env:
   ASPNETCORE_ENVIRONMENT: "Actions"
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      src: ${{ steps.filter.outputs.src }}
+      test: ${{ steps.filter.outputs.test }}
+    
+    steps:
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            src:
+              - 'Organization/**'
+              - 'Dockerfile'
+              - 'Organization.sln'
+              - '.github/workflows/ci-cd.yml'
+            test:
+              - 'IntegrationTests/**'
   ci:
+    needs: changes
     runs-on: ubuntu-latest
     
     timeout-minutes: 10
 
+    if: ${{ needs.changes.outputs.src == 'true' || needs.changes.outputs.test == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with: 
           submodules: true
+      - name: Prepare containers
+        run: |
+          cd compose
+          chmod +x deps.sh
+          ./deps.sh
+          cd ../
       - name: Download & install .NET SDK
         run: |
           mkdir dotnet
@@ -94,7 +121,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./
           asset_name: app.zip
           asset_content_type: application/zip
       - name: Build Docker image
