@@ -21,6 +21,8 @@ jobs:
       test: ${{ steps.filter.outputs.test }}
     
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
