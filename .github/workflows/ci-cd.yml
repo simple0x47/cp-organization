@@ -33,7 +33,7 @@ jobs:
           sudo mv -f ./dotnet /usr/share/
       - name: Replace placeholder version
         run: |
-          sed -i 's/5123.0.0/${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}.${{ env.PATCH_VERSION }}/' ./Core/Core.csproj
+          sed -i 's/5123.0.0/${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}.${{ env.PATCH_VERSION }}/' ./Organization/Organization.csproj
         env:
           PATCH_VERSION: ${{ github.run_number }}
       - name: Run tests
