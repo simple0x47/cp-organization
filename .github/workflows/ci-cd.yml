@@ -52,9 +52,8 @@ jobs:
         run: |
           cd Organization
           dotnet publish Organization.csproj -c Release -o app
-          cd app
           zip -r app.zip ./app
-      - name: Upload nuget packages as artifact
+      - name: Upload binaries as artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.ARTIFACT_NAME }}
