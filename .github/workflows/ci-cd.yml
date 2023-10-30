@@ -132,6 +132,9 @@ jobs:
           docker tag gabriel0simpleg/cp-organization:${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}.${{ env.PATCH_VERSION }} gabriel0simpleg/cp-organization:latest
           docker push gabriel0simpleg/cp-organization:${{ vars.MAJOR_VERSION }}.${{ vars.MINOR_VERSION }}.${{ env.PATCH_VERSION }}
           docker push gabriel0simpleg/cp-organization:latest
+      - name: Update running instance
+        run: |
+          ssh ${{ vars.SSH_CONNECTION }} 'cd /home/ubuntu/cuplan/organization && ./run.sh'
           
   clean:
     if: success() || failure()
